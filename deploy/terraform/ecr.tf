@@ -1,4 +1,3 @@
-# ECR Repository
 resource "aws_ecr_repository" "app" {
   name                 = "${local.project_name}-app-ecr"
   image_tag_mutability = "MUTABLE"
@@ -16,7 +15,6 @@ resource "aws_ecr_repository" "app" {
   }
 }
 
-# ECR lifecycle policy
 resource "aws_ecr_lifecycle_policy" "app_repository_policy" {
   repository = aws_ecr_repository.app.name
 
@@ -39,11 +37,9 @@ resource "aws_ecr_lifecycle_policy" "app_repository_policy" {
   })
 }
 
-# Docker Build and Push
 resource "null_resource" "docker_build_and_push" {
   triggers = {
     dockerfile_hash = filemd5("${path.module}/../../Dockerfile")
-    # Add source code hash to rebuild on code changes
     go_mod_hash = filemd5("${path.module}/../../go.mod")
     timestamp   = timestamp()
   }
