@@ -6,9 +6,10 @@ metadata:
   labels:
     app: totem-pedidos
   annotations:
+    alb.ingress.kubernetes.io/group.name: k8s-shared-internal-alb-use1
     alb.ingress.kubernetes.io/scheme: internal
     alb.ingress.kubernetes.io/target-type: ip
-    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'
 spec:
   ingressClassName: alb
   rules:
