@@ -19,14 +19,8 @@ services:
       - MP_USER_ID=2331609065
       - MP_EXTERNAL_POS_ID=FIAPMFAVLPOS
       - MP_WEBHOOK_SECRET=SEGREDO_WEBHOOK
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - totempedidos-network
 
 networks:
   totempedidos-network:
-
-volumes:
-  totempedidos-db:
