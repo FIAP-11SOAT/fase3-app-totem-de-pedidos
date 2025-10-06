@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: Totem de Pedidos
+  version: 1.0.0
+  contact:
+    name: Totem de Pedidos
+    url: https://totem.mfavl-soat11.software
+  x-logo:
+    url: https://avatars.githubusercontent.com/u/206149088?s=200&v=4
+    altText: FIAP 11SOAT
+  description: '**Totem de Pedidos** é um sistema de pedidos para restaurantes, bares e lanchonetes. Ele permite que os clientes façam pedidos diretamente do seu dispositivo móvel, sem precisar esperar por um garçom. O sistema é fácil de usar e pode ser personalizado para atender às necessidades específicas de cada estabelecimento.'
+tags:
+  - name: Customer
+  - name: Orders
+  - name: Categories
+  - name: Payments
+paths:
+  /categories:
+    get:
+      operationId: Category_ListAllCategories
+      summary: Get all categories
+      description: Get all categories
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+      tags:
+        - Categories
+    post:
+      operationId: Category_createCategory
+      summary: Create a new category
+      description: Create a new category
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema: {}
+      tags:
+        - Categories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+  /categories/{id}:
+    get:
+      operationId: Category_FindCategoryByID
+      summary: Get a categories by ID
+      description: Get a categories by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema: {}
+      tags:
+        - Categories
+    put:
+      operationId: Category_updateCategory
+      summary: update a categories
+      description: update a categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - Categories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+    delete:
+      operationId: Category_DeleteCategory
+      summary: Delete a categories
+      description: Delete a categories
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - Categories
+  /customer:
+    get:
+      operationId: Customers_getCustomer
+      summary: Get a customer by tax ID
+      description: Get a customer by tax ID
+      parameters:
+        - name: taxid
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      tags:
+        - Customer
+    post:
+      operationId: Customers_createCustomer
+      summary: Create a new customer
+      description: Create a new customer
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+      tags:
+        - Customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerInput'
+  /orders:
+    get:
+      operationId: Orders_getOrders
+      summary: Get all orders
+      description: Get all orders with optional filters
+      parameters:
+        - name: id
+          in: query
+          required: false
+          schema:
+            type: integer
+          explode: false
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+          explode: false
+        - name: customer_id
+          in: query
+          required: false
+          schema:
+            type: integer
+          explode: false
+        - name: notification_attempts
+          in: query
+          required: false
+          schema:
+            type: integer
+          explode: false
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+      tags:
+        - Orders
+    post:
+      operationId: Orders_createOrder
+      summary: Create a new order
+      description: Create a new order with associated items
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderCreationResponse'
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderInput'
+  /orders/{id}:
+    get:
+      operationId: Orders_getOrder
+      summary: Get an order by ID
+      description: Get an order by its unique identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+      tags:
+        - Orders
+    put:
+      operationId: Orders_updateOrder
+      summary: Update an order by ID
+      description: Update an order's status by its unique identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderUpdateResponse'
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOrderInput'
+  /payments:
+    post:
+      operationId: Payments_createPayment
+      summary: Create a new payment
+      description: Create a new payment with the specified details
+      parameters: []
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentResponse'
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInput'
+  /payments/webhook:
+    post:
+      operationId: Payments_webhook
+      summary: Webhook for payment notifications
+      description: Receive notifications for payment status updates
+      parameters: []
+      responses:
+        '204':
+          description: 'There is no content to send for this request, but the headers may be useful. '
+      tags:
+        - Payments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentNotification'
+  /payments/{id}:
+    get:
+      operationId: Payments_getPayment
+      summary: Get By ID
+      description: Get a payment by its unique identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: The request has succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+      tags:
+        - Payments
+components:
+  schemas:
+    CategoryInput:
+      type: object
+      required:
+        - name
+        - description
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+    CreatePaymentResponse:
+      type: object
+      required:
+        - payment_id
+        - order_id
+        - qrcode
+        - qrcode_b64
+      properties:
+        payment_id:
+          type: integer
+        order_id:
+          type: integer
+        qrcode:
+          type: string
+        qrcode_b64:
+          type: string
+    Customer:
+      type: object
+      required:
+        - ID
+        - Name
+        - Email
+        - TaxID
+        - CreatedAt
+      properties:
+        ID:
+          type: string
+        Name:
+          type: string
+        Email:
+          type: string
+        TaxID:
+          type: string
+        CreatedAt:
+          type: string
+    CustomerInput:
+      type: object
+      required:
+        - taxid
+        - nome
+        - email
+      properties:
+        taxid:
+          type: string
+        nome:
+          type: string
+        email:
+          type: string
+    Order:
+      type: object
+      required:
+        - id
+        - order_date
+        - notification_attempts
+        - status
+        - total_amount
+        - created_at
+        - customer_id
+        - items
+      properties:
+        id:
+          type: integer
+        order_date:
+          type: string
+        notification_attempts:
+          type: integer
+        status:
+          type: string
+        total_amount:
+          type: number
+          format: double
+        created_at:
+          type: string
+        customer_id:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+    OrderCreationResponse:
+      type: object
+      required:
+        - message
+        - orderId
+      properties:
+        message:
+          type: string
+        orderId:
+          type: string
+    OrderInput:
+      type: object
+      required:
+        - customer_id
+        - items
+      properties:
+        customer_id:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItemInput'
+    OrderItem:
+      type: object
+      required:
+        - id
+        - quantity
+        - price
+        - created_at
+        - order_id
+        - product_id
+      properties:
+        id:
+          type: integer
+        quantity:
+          type: integer
+        price:
+          type: number
+          format: double
+        created_at:
+          type: string
+        order_id:
+          type: integer
+        product_id:
+          type: integer
+    OrderItemInput:
+      type: object
+      required:
+        - product_id
+        - quantity
+      properties:
+        product_id:
+          type: integer
+        quantity:
+          type: integer
+    OrderUpdateResponse:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    PaymentInput:
+      type: object
+      required:
+        - order_id
+        - amount
+        - title
+      properties:
+        order_id:
+          type: string
+        amount:
+          type: number
+        title:
+          type: string
+    PaymentNotification:
+      type: object
+    PaymentResponse:
+      type: object
+      required:
+        - id
+        - amount
+        - payment_date
+        - status
+        - provider
+      properties:
+        id:
+          type: integer
+        amount:
+          type: number
+        payment_date:
+          type: string
+        status:
+          type: string
+        provider:
+          type: string
+    UpdateOrderInput:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string

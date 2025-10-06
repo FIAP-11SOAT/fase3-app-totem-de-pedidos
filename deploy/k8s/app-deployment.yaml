@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: totem-pedidos-app
+  namespace: totem-pedidos
+  labels:
+    app: totem-pedidos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: totem-pedidos
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: totem-pedidos
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        fsGroup: 65532
+      initContainers:
+        - name: init-db
+          image: postgres:16-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              set -e;
+              sleep 5;
+              echo "Running database migration...";
+              echo $DB_PASS;
+              PGPASSWORD=$DB_PASS psql -h $DB_HOST -U $DB_USER -d $DB_NAME -p $DB_PORT -f /tmp/migration.sql;
+          env:
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: totem-pedidos-config
+                  key: DB_HOST
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: totem-pedidos-secret
+                  key: DB_USER
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: totem-pedidos-config
+                  key: DB_NAME
+            - name: DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: totem-pedidos-config
+                  key: DB_PORT
+            - name: DB_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: totem-pedidos-secret
+                  key: DB_PASS
+          volumeMounts:
+          - name: migration-sql
+            mountPath: /tmp
+      volumes:
+        - name: migration-sql
+          configMap:
+            name: totem-pedidos-config
+            items:
+            - key: migration.sql
+              path: migration.sql
+      containers:
+      - name: totem-pedidos
+        image: totem-pedidos:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          name: http
+        envFrom:
+        - configMapRef:
+            name: totem-pedidos-config
+        - secretRef:
+            name: totem-pedidos-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          runAsUser: 65532
+          capabilities:
+            drop:
+            - ALL

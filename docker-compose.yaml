@@ -1,0 +1,70 @@
+
+services:
+  
+  app:
+    container_name: totem-pedidos-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_DRIVER=postgres
+      - DB_USER=totempedidos
+      - DB_PASS=totempedidos
+      - DB_HOST=db:5432
+      - DB_NAME=totempedidos
+      - DB_OPTIONS=?sslmode=disable
+      - MP_NOTIFICATION_URL=https://a1a6-2804-40a8-2e0-400-a4ec-aa8a-7db2-fecf.ngrok-free.app/payments/webhook
+      - MP_TOKEN=APP_USR-1916687851464784-031623-82a0e899f1439bff9170071d4539cf4f-2331609065
+      - MP_USER_ID=2331609065
+      - MP_EXTERNAL_POS_ID=FIAPMFAVLPOS
+      - MP_WEBHOOK_SECRET=SEGREDO_WEBHOOK
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - totempedidos-network
+
+  db:
+    container_name: totem-pedidos-db
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - totempedidos-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=totempedidos
+      - POSTGRES_PASSWORD=totempedidos
+      - POSTGRES_DB=totempedidos
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d totempedidos -U totempedidos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5    
+    networks:
+      - totempedidos-network
+
+  migration:
+    container_name: totem-pedidos-migration
+    image: postgres:16-alpine
+    command: >
+      bash -c "
+        sleep 5 &&
+        PGPASSWORD=totempedidos psql -h db -U totempedidos -d totempedidos -f /migrations/0001_init.sql &&
+        echo 'Migrations executed successfully'"
+    volumes:
+      - ./migrations:/migrations
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - totempedidos-network
+
+networks:
+  totempedidos-network:
+
+volumes:
+  totempedidos-db:
