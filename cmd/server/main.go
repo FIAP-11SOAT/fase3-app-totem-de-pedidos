@@ -39,12 +39,25 @@ func main() {
 		}
 	}
 
+	rdsSecretString, err := GetAwsSecrets("fase3-database-totem-de-pedidos-secrets")
+	if err != nil {
+		fmt.Println("Error to get RDS secret:", err)
+		return
+	}
+
+	var rdsSecret RDSSecret
+	err = json.Unmarshal([]byte(*rdsSecretString), &rdsSecret)
+	if err != nil {
+		fmt.Println("Error to parse RDS secret:", err)
+		return
+	}
+
 	databaseAdapter := dbadapter.New(dbadapter.Input{
 		DBDrive:   os.Getenv("DB_DRIVER"),
-		DBUser:    os.Getenv("DB_USER"),
-		DBPass:    os.Getenv("DB_PASS"),
-		DBHost:    os.Getenv("DB_HOST"),
-		DBName:    os.Getenv("DB_NAME"),
+		DBUser:    rdsSecret.User,
+		DBPass:    rdsSecret.Password,
+		DBHost:    rdsSecret.Endpoint,
+		DBName:    rdsSecret.DBName,
 		DBOptions: os.Getenv("DB_OPTIONS"),
 	})
 
@@ -101,4 +114,12 @@ func GetAwsSecrets(secretName string) (*string, error) {
 
 type CognitoSecret struct {
 	CognitoJwksJson string `json:"COGNITO_JWKS_JSON"`
+}
+
+type RDSSecret struct {
+	Endpoint string `json:"RDS_ENDPOINT"`
+	Port     string `json:"RDS_PORT"`
+	User     string `json:"RDS_USERNAME"`
+	Password string `json:"RDS_PASSWORD"`
+	DBName   string `json:"RDS_DATABASE"`
 }
