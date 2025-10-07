@@ -20,10 +20,6 @@ spec:
       labels:
         app: totem-pedidos
     spec:
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 65532
-        fsGroup: 65532
       containers:
       - name: totem-pedidos
         image: totem-pedidos:latest
@@ -32,26 +28,12 @@ spec:
         - containerPort: 8080
           name: http
         envFrom:
-        - configMapRef:
-            name: totem-pedidos-config
         - secretRef:
             name: totem-pedidos-secret
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
-          initialDelaySeconds: 30
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 3
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 5
-          periodSeconds: 5
-          timeoutSeconds: 3
-          failureThreshold: 3
         resources:
           requests:
             memory: "128Mi"
@@ -59,11 +41,3 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        securityContext:
-          allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsNonRoot: true
-          runAsUser: 65532
-          capabilities:
-            drop:
-            - ALL

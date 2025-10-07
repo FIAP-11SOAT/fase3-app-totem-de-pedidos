@@ -57,6 +57,7 @@ jobs:
 
   build-image-and-push:
     runs-on: ubuntu-latest
+    needs: terraform
 
     env:
       AWS_ECR_REPOSITORY_URL: ${{ vars.AWS_ECR_REPOSITORY_URL }}
@@ -109,9 +110,8 @@ jobs:
 
       - name: Deploy EKS
         run: |
-          kubectl apply -f deploy/k8s/app-namespace.yaml
-          kubectl apply -f deploy/k8s/app-secret.yaml
-          kubectl apply -f deploy/k8s/app-deployment.yaml
-          kubectl apply -f deploy/k8s/app-service.yaml
-          kubectl wait --for=condition=Available deployment/totem-pedidos-app -n totem-pedidos --timeout=300s
-          kubectl apply -f deploy/k8s/app-ingress.yaml
+          kubectl apply -f ./deploy/k8s/app-namespace.yaml
+          kubectl apply -f ./deploy/k8s/app-secret.yaml
+          kubectl apply -f ./deploy/k8s/app-deployment.yaml
+          kubectl apply -f ./deploy/k8s/app-service.yaml
+          kubectl apply -f ./deploy/k8s/app-ingress.yaml

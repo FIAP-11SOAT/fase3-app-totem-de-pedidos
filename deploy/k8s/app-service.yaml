@@ -6,11 +6,10 @@ metadata:
   labels:
     app: totem-pedidos
 spec:
-  type: ClusterIP
-  ports:
-  - port: 80
-    targetPort: 8080
-    protocol: TCP
-    name: http
   selector:
     app: totem-pedidos
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
