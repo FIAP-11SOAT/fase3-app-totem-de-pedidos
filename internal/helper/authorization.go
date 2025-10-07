@@ -3,7 +3,6 @@ package helper
 import (
 	"crypto/rsa"
 	"fmt"
-	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -61,9 +60,6 @@ func (v *JWTValidator) Validate(tokenString string, keyMap map[string]*rsa.Publi
 	if claims, ok := token.Claims.(*CognitoClaims); ok && token.Valid {
 		if claims.TokenUse != "access" {
 			return nil, fmt.Errorf("invalid token_use: got %s, expected access", claims.TokenUse)
-		}
-		if claims.Exp < time.Now().Unix() {
-			return nil, fmt.Errorf("token expired")
 		}
 		return claims, nil
 	}

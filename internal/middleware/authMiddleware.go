@@ -30,8 +30,33 @@ func JWTAuthMiddleware(keyMap map[string]*rsa.PublicKey) echo.MiddlewareFunc {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid or expired token: "+err.Error())
 			}
 
-			c.Set("user_token", token)
+			c.Set("cognito_claims", token)
 			return next(c)
 		}
 	}
+}
+
+func RoleMiddleware(allowedRoles ...string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			claims := c.Get("cognito_claims").(*helper.CognitoClaims)
+			if claims == nil {
+				return echo.NewHTTPError(http.StatusUnauthorized, "Token não encontrado")
+			}
+
+			for _, userRole := range claims.CognitoGroups {
+				for _, allowedRole := range allowedRoles {
+					if userRole == allowedRole {
+						return next(c)
+					}
+				}
+			}
+
+			return echo.NewHTTPError(http.StatusForbidden, "Acesso negado - role necessária: "+strings.Join(allowedRoles, ", "))
+		}
+	}
+}
+
+func RequireAdminRole() echo.MiddlewareFunc {
+	return RoleMiddleware("admin", "employees")
 }
