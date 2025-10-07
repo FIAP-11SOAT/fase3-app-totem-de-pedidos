@@ -34,7 +34,7 @@ func TestCreateOrder(t *testing.T) {
 		assert.NoError(t, err)
 
 		// get id from customer
-		var customerID int
+		var customerID string
 		err = client.QueryRow(context.Background(), `SELECT id FROM customers WHERE email = 'test_user@example.com'`).Scan(&customerID)
 		assert.NoError(t, err)
 
@@ -74,7 +74,7 @@ func TestCreateOrder(t *testing.T) {
 					Price:     25.00,
 				},
 			},
-			ID: customerID,
+			ID: 10,
 		}
 
 		// create order
@@ -91,7 +91,7 @@ func TestCreateOrder(t *testing.T) {
 		assert.NoError(t, err)
 
 		// get customerId
-		var customerID int
+		var customerID string
 		err = client.QueryRow(context.Background(), `SELECT id FROM customers WHERE email = 'error_user@example.com'`).Scan(&customerID)
 		assert.NoError(t, err)
 
@@ -184,7 +184,7 @@ func TestGetOrderByID(t *testing.T) {
 		assert.NoError(t, err)
 
 		// get customerId
-		var customerID int
+		var customerID string
 		err = client.QueryRow(context.Background(), `SELECT id FROM customers WHERE email = 'order@example.com'`).Scan(&customerID)
 		assert.NoError(t, err)
 
@@ -258,7 +258,7 @@ func TestListOrders(t *testing.T) {
 		assert.NoError(t, err)
 
 		// get customer id
-		var customerId int
+		var customerId string
 		err = client.QueryRow(context.Background(), `SELECT id FROM customers WHERE email = 'filter@example.com'`).Scan(&customerId)
 		assert.NoError(t, err)
 

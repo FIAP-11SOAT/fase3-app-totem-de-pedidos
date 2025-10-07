@@ -32,8 +32,8 @@ func (u *UpdateOrderInput) Validate() error {
 }
 
 type OrderFilterInput struct {
-	ID                   *int   `query:"id"`
-	Status               string `query:"status"`
-	CustomerID           *int   `query:"customer_id"`
-	NotificationAttempts *int   `query:"notification_attempts"`
+	ID                   *int    `query:"id"`
+	Status               string  `query:"status"`
+	CustomerID           *string `query:"customer_id"`
+	NotificationAttempts *int    `query:"notification_attempts"`
 }

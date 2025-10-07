@@ -186,7 +186,7 @@ func TestGetOrderByIdHandler(t *testing.T) {
 
 		mockService := mock.NewOrderServiceMock()
 		mockService.GetOrderByIDFunc = func(id int) (entity.Order, error) {
-			var cId int = 1
+			var cId string = "1"
 			return entity.Order{
 				ID:          id,
 				CustomerID:  &cId,
@@ -261,8 +261,8 @@ func TestGetOrdersHandler(t *testing.T) {
 
 		mockService := mock.NewOrderServiceMock()
 		mockService.ListOrdersFunc = func(input.OrderFilterInput) ([]entity.Order, error) {
-			var custumer1 int = 1
-			var customer2 int = 2
+			var custumer1 string = "1"
+			var customer2 string = "2"
 			return []entity.Order{
 				{ID: 1, Status: "PENDING", CustomerID: &custumer1},
 				{ID: 2, Status: "PENDING", CustomerID: &customer2},

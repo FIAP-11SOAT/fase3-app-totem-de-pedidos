@@ -19,7 +19,7 @@ type Order struct {
 	Status               OrderStatus
 	TotalAmount          float64
 	CreatedAt            time.Time
-	CustomerID           *int
+	CustomerID           *string
 	Items                []OrderItem
 }
 

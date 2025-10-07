@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/FIAP-11SOAT/totem-de-pedidos/internal/api/dto"
+	"github.com/FIAP-11SOAT/totem-de-pedidos/internal/helper"
 
 	"github.com/labstack/echo/v4"
 
@@ -35,7 +36,12 @@ func (o *OrderHanlder) CreateOrder(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.HttpResponseError{Error: err.Error()})
 	}
 
-	orderEntity := mapper.ToOrderDomain(orderInput)
+	claims := c.Get("cognito_claims").(*helper.CognitoClaims)
+	if claims == nil {
+		return c.JSON(http.StatusUnauthorized, dto.HttpResponseError{Error: "token not found"})
+	}
+
+	orderEntity := mapper.ToOrderDomain(orderInput, claims.Sub)
 
 	orderId, err := o.orderService.CreateOrder(orderEntity)
 	if err != nil {

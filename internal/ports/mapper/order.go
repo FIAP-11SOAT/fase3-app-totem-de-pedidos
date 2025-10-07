@@ -5,7 +5,7 @@ import (
 	"github.com/FIAP-11SOAT/totem-de-pedidos/internal/ports/input"
 )
 
-func ToOrderDomain(input input.OrderInput) entity.Order {
+func ToOrderDomain(input input.OrderInput, customerId string) entity.Order {
 	items := make([]entity.OrderItem, len(input.Items))
 
 	for i, item := range input.Items {
@@ -16,7 +16,7 @@ func ToOrderDomain(input input.OrderInput) entity.Order {
 	}
 
 	return entity.Order{
-		CustomerID:           input.CustomerID,
+		CustomerID:           &customerId,
 		Items:                items,
 		Status:               "PENDING",
 		NotificationAttempts: 0,

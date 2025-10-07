@@ -36,23 +36,23 @@ jobs:
           terraform_version: 1.11.0
           terraform_wrapper: false
 
-      - name: Initialize Terraform for Lambda
+      - name: Initialize Terraform for ECR
         working-directory: deploy/terraform
         run: terraform init
 
-      - name: Validate Terraform for Lambda
+      - name: Validate Terraform for ECR
         working-directory: deploy/terraform
         run: terraform validate
 
-      - name: Plan Terraform for Lambda
+      - name: Plan Terraform for ECR
         if: github.ref == 'refs/heads/main'
         working-directory: deploy/terraform
-        run: terraform plan -out=lambda
+        run: terraform plan -out=ecr
 
-      - name: Apply Terraform for Lambda
+      - name: Apply Terraform for ECR
         if: github.ref == 'refs/heads/main'
         working-directory: deploy/terraform
-        run: terraform apply -auto-approve lambda
+        run: terraform apply -auto-approve ecr
 
 
   build-image-and-push:
@@ -106,7 +106,11 @@ jobs:
       - name: Update Kube Config
         run: aws eks update-kubeconfig --name ${{ vars.AWS_EKS_CLUSTER_NAME }} --region us-east-1
 
-      - name: Deploy EKS Without ALB
+      - name: Deploy EKS
         run: |
-          kubectl apply -f eks-without-alb/k8s/eks-deployment.yaml
-          kubectl apply -f eks-without-alb/k8s/eks-svc.yaml
+          kubectl apply -f deploy/k8s/app-namespace.yaml
+          kubectl apply -f deploy/k8s/app-secret.yaml
+          kubectl apply -f deploy/k8s/app-deployment.yaml
+          kubectl apply -f deploy/k8s/app-service.yaml
+          kubectl wait --for=condition=Available deployment/totem-pedidos-app -n totem-pedidos --timeout=300s
+          kubectl apply -f deploy/k8s/app-ingress.yaml

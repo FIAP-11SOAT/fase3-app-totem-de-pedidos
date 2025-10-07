@@ -31,7 +31,7 @@ func TestCreateOrder(t *testing.T) {
 
 		orderUc := usecase.NewOrderUseCase(orderMock, productMock)
 
-		var id int = 1
+		var id string = "1"
 		order := entity.Order{
 			CustomerID: &id,
 			Items: []entity.OrderItem{
@@ -51,7 +51,7 @@ func TestCreateOrder(t *testing.T) {
 			mock.NewProductRepositoryMock(),
 		)
 
-		var id int = 1
+		var id string = "1"
 		order := entity.Order{
 			CustomerID: &id,
 			Items:      []entity.OrderItem{},
@@ -73,7 +73,7 @@ func TestCreateOrder(t *testing.T) {
 
 		orderUc := usecase.NewOrderUseCase(orderMock, productMock)
 
-		var id int = 1
+		var id string = "1"
 		order := entity.Order{
 			CustomerID: &id,
 			Items: []entity.OrderItem{
@@ -117,7 +117,7 @@ func TestUpdateOrderStatus(t *testing.T) {
 
 func TestGetOrderByID(t *testing.T) {
 	t.Run("should return order when found", func(t *testing.T) {
-		var id int = 10
+		var id string = "10"
 		expected := entity.Order{
 			ID:          1,
 			CustomerID:  &id,
@@ -160,7 +160,7 @@ func TestGetOrderByID(t *testing.T) {
 
 func TestListOrders(t *testing.T) {
 	t.Run("should return list of orders without disscount", func(t *testing.T) {
-		var id int = 1
+		var id string = "1"
 		expected := []entity.Order{
 			{ID: 1, TotalAmount: 47.5, CustomerID: &id},
 			{ID: 2, TotalAmount: 95.0, CustomerID: &id},
@@ -186,7 +186,7 @@ func TestListOrders(t *testing.T) {
 	})
 
 	t.Run("should return list of orders successfully applying disscount", func(t *testing.T) {
-		var id int = 1
+		var id string = "1"
 		expected := []entity.Order{
 			{ID: 1, TotalAmount: 47.5, CustomerID: &id},
 			{ID: 2, TotalAmount: 95.0, CustomerID: &id},
@@ -205,7 +205,7 @@ func TestListOrders(t *testing.T) {
 
 		uc := usecase.NewOrderUseCase(orderRepo, productRepo)
 
-		id = 1
+		id = "1"
 		result, err := uc.ListOrders(input.OrderFilterInput{CustomerID: &id})
 
 		assert.NoError(t, err)
@@ -213,7 +213,7 @@ func TestListOrders(t *testing.T) {
 	})
 
 	t.Run("should return list of orders successfully", func(t *testing.T) {
-		var id int = 10
+		var id string = "10"
 		expected := []entity.Order{
 			{ID: 1, Status: "PAYMENT_PENDING", CustomerID: &id},
 			{ID: 2, Status: "COMPLETED", CustomerID: &id},
