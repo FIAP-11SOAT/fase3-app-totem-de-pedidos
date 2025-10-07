@@ -10,6 +10,11 @@ provider "aws" {
 
 }
 
+provider "github" {
+  token = local.aws_master_secrets["GITHUB_ACCESS_TOKEN"]
+  owner = local.aws_master_secrets["GITHUB_ORG"]
+}
+
 provider "kubernetes" {
   host                   = data.aws_eks_cluster.cluster.endpoint
   cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority[0].data)
