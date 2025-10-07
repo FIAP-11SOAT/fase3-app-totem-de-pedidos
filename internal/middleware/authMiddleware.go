@@ -12,6 +12,11 @@ import (
 func JWTAuthMiddleware(keyMap map[string]*rsa.PublicKey) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+			// Ignorar autenticação para a rota /health
+			if c.Request().URL.Path == "/health" {
+				return next(c)
+			}
+
 			authHeader := c.Request().Header.Get("Authorization")
 			if authHeader == "" {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Authorization header missing")
