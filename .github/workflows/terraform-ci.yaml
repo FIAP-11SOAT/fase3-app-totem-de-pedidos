@@ -56,8 +56,10 @@ jobs:
 
 
   build-image-and-push:
+    name: Build Docker Image and Push to ECR
     runs-on: ubuntu-latest
     needs: terraform
+
 
     env:
       AWS_ECR_REPOSITORY_URL: ${{ vars.AWS_ECR_REPOSITORY_URL }}
