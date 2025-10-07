@@ -88,6 +88,7 @@ jobs:
   eks-deploy:
     name: EKS Deploy Application
     runs-on: ubuntu-latest
+    needs: build-image-and-push
     defaults:
       run:
         working-directory: deploy/k8s
