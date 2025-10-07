@@ -118,7 +118,7 @@ type CognitoSecret struct {
 
 type RDSSecret struct {
 	Endpoint string `json:"RDS_ENDPOINT"`
-	Port     string `json:"RDS_PORT"`
+	Port     int    `json:"RDS_PORT"`
 	User     string `json:"RDS_USERNAME"`
 	Password string `json:"RDS_PASSWORD"`
 	DBName   string `json:"RDS_DATABASE"`
