@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: totem-pedidos-app
+  namespace: totem-pedidos
+  labels:
+    app: totem-pedidos
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: totem-pedidos
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: totem-pedidos
+    spec:
+      containers:
+      - name: totem-pedidos
+        image: totem-pedidos:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          name: http
+        envFrom:
+        - secretRef:
+            name: totem-pedidos-secret
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"

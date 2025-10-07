@@ -1,0 +1,26 @@
+
+services:
+  
+  app:
+    container_name: totem-pedidos-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    pull_policy: build
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - DB_DRIVER=postgres
+      - DB_NAME=infra_totem_de_pedidos_database
+      - DB_OPTIONS=?sslmode=require
+      - MP_NOTIFICATION_URL=https://a1a6-2804-40a8-2e0-400-a4ec-aa8a-7db2-fecf.ngrok-free.app/payments/webhook
+      - MP_TOKEN=APP_USR-1916687851464784-031623-82a0e899f1439bff9170071d4539cf4f-2331609065
+      - MP_USER_ID=2331609065
+      - MP_EXTERNAL_POS_ID=FIAPMFAVLPOS
+      - MP_WEBHOOK_SECRET=SEGREDO_WEBHOOK
+    networks:
+      - totempedidos-network
+
+networks:
+  totempedidos-network:

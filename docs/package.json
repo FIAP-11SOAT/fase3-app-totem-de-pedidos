@@ -1,0 +1,30 @@
+{
+  "name": "totem-de-pedido",
+  "version": "0.1.0",
+  "type": "module",
+  "peerDependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/openapi": "latest",
+    "@typespec/openapi3": "latest",
+    "@typespec/rest": "latest"
+  },
+  "devDependencies": {
+    "@typespec/compiler": "latest",
+    "@typespec/http": "latest",
+    "@typespec/openapi": "latest",
+    "@typespec/openapi3": "latest",
+    "@typespec/rest": "latest"
+  },
+  "private": true,
+  "packageManager": "npm@11.3.0+sha512.96eb611483f49c55f7fa74df61b588de9e213f80a256728e6798ddc67176c7b07e4a1cfc7de8922422cbce02543714367037536955221fa451b0c4fefaf20c66",
+  "dependencies": {
+    "@redocly/cli": "^1.34.2",
+    "redoc-cli": "^0.13.21"
+  },
+  "scripts": {
+    "watch": "tsp compile ./src --watch",
+    "compile": "tsp compile ./src",
+    "preview": "redocly preview-docs ./schema/openapi.yaml"
+  }
+}

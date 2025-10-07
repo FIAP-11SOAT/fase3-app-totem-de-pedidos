@@ -1,0 +1,117 @@
+name: Deploy Application with Terraform and EKS
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+
+jobs:
+
+  terraform:
+    name: Terraform Verification and Push Lambda
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.11.0
+          terraform_wrapper: false
+
+      - name: Initialize Terraform for ECR
+        working-directory: deploy/terraform
+        run: terraform init
+
+      - name: Validate Terraform for ECR
+        working-directory: deploy/terraform
+        run: terraform validate
+
+      - name: Plan Terraform for ECR
+        if: github.ref == 'refs/heads/main'
+        working-directory: deploy/terraform
+        run: terraform plan -out=ecr
+
+      - name: Apply Terraform for ECR
+        if: github.ref == 'refs/heads/main'
+        working-directory: deploy/terraform
+        run: terraform apply -auto-approve ecr
+
+
+  build-image-and-push:
+    name: Build Docker Image and Push to ECR
+    runs-on: ubuntu-latest
+    needs: terraform
+
+
+    env:
+      AWS_ECR_REPOSITORY_URL: ${{ vars.AWS_ECR_REPOSITORY_URL }}
+      AWS_REGION: us-east-1
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Login to Amazon ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${{ vars.AWS_ECR_AUTH_ENDPOINT }}
+
+      - name: Build Docker image
+        run: |
+          docker build -t $AWS_ECR_REPOSITORY_URL:latest .
+
+      - name: Push Docker image to ECR
+        run: |
+          docker push $AWS_ECR_REPOSITORY_URL:latest
+
+  eks-deploy:
+    name: EKS Deploy Application
+    runs-on: ubuntu-latest
+    needs: build-image-and-push
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Update Kube Config
+        run: aws eks update-kubeconfig --name ${{ vars.AWS_EKS_CLUSTER_NAME }} --region us-east-1
+
+      - name: Deploy EKS
+        working-directory: deploy/k8s
+        run: |
+          kubectl apply -f app-namespace.yaml
+          kubectl apply -f app-secret.yaml
+          kubectl apply -f app-deployment.yaml
+          kubectl apply -f app-service.yaml
+          kubectl apply -f app-ingress.yaml
